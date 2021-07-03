@@ -40,15 +40,15 @@ public class MainDAO {
                 case "update":
                     System.out.println("Podaj ID do zmiany");
                     int id_num2 = scanner.nextInt();
-                    userDAO.read(id_num2);
+                    User userU = userDAO.read(id_num2);
                     System.out.println("Podaj dane do zmiany");
                     System.out.println("email");
-                    String text11 = scanner.nextLine();
+                    userU.setEMAIL(scanner.next());
                     System.out.println("username");
-                    String text22 = scanner.nextLine();
+                    userU.setUSER(scanner.next());
                     System.out.println("password");
-                    String text33 = scanner.nextLine();
-                    User userU = new User(text11, text22, text33);
+                    userU.setPASSWORD(scanner.next());
+                    userDAO.update(userU);
                     break;
                 case "show all":
                     System.out.println("List of users: ");

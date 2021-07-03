@@ -8,7 +8,6 @@ import java.util.Stack;
 
 public class userDAO {
     private static final String CREATE = "insert into users(email,username, password) VALUES (?, ?, ?);";
-    private static final String GET_ID = "select * from users where username = ?";
     private static final String READ = "select * from users where id = ?";
     private static final String UPDATE ="update users set username = ?, email = ?, password = ? where id = ?";
     private static final String DELETE = "delete from users where id = ?";
@@ -19,17 +18,18 @@ public class userDAO {
 
     public static User create(User user) {
         try (Connection conn = DBUtil.connect()){
-            PreparedStatement stmt = conn.prepareStatement(CREATE);
+            PreparedStatement stmt = conn.prepareStatement(CREATE, Statement.RETURN_GENERATED_KEYS);
             stmt.setString(1,user.getEMAIL());
             stmt.setString(2,user.getUSER());
             stmt.setString(3,user.getPASSWORD());
             stmt.executeUpdate();
-            /*ResultSet rs = stmt.getGeneratedKeys();
+            ResultSet rs = stmt.getGeneratedKeys();
             if (rs.next()) {
                 user.setID(rs.getInt(1));
             }
-            return user;*/
-            PreparedStatement stmt2 = conn.prepareStatement(GET_ID);
+            System.out.println(user);
+            return user;
+            /*PreparedStatement stmt2 = conn.prepareStatement(GET_ID);
             stmt2.setString(1, user.getUSER());
             ResultSet rs = stmt2.executeQuery();
             while (rs.next()) {
@@ -37,7 +37,7 @@ public class userDAO {
                 user.setID(user_id);
                 System.out.println(user);
                 return user;
-            }
+            }*/
         } catch (SQLException e){
             e.printStackTrace();
         }
@@ -53,7 +53,7 @@ public class userDAO {
                 int user_id = rs.getInt("id");
                 String username = rs.getString("username");
                 String email = rs.getString("email");
-                String pass = rs.getString("password");
+                String pass = BCrypt.hashpw(rs.getString("password"),BCrypt.gensalt());
                 User user = new User(email,username,pass);
                 user.setID(user_id);
                 System.out.println(user);
@@ -71,7 +71,7 @@ public class userDAO {
             PreparedStatement stmt3 = conn.prepareStatement(UPDATE);
             stmt3.setString(1, user.getUSER());
             stmt3.setString(2, user.getEMAIL());
-            stmt3.setString(3, user.getPASSWORD());
+            stmt3.setString(3, BCrypt.hashpw(user.getPASSWORD(),BCrypt.gensalt()));
             stmt3.setInt(4, user.getID());
             stmt3.executeUpdate();
             System.out.println(user);
